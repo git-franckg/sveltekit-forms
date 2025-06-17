@@ -8,6 +8,15 @@
   </p>
   
   <p align="center">
+    <a href="https://www.npmjs.com/package/@git-franckg/sveltekit-forms">
+      <img src="https://img.shields.io/npm/v/@git-franckg/sveltekit-forms.svg?style=flat-square" alt="npm version" />
+    </a>
+    <a href="https://www.npmjs.com/package/@git-franckg/sveltekit-forms">
+      <img src="https://img.shields.io/npm/dm/@git-franckg/sveltekit-forms.svg?style=flat-square" alt="npm downloads" />
+    </a>
+    <a href="https://github.com/git-franckg/sveltekit-forms/blob/master/LICENSE">
+      <img src="https://img.shields.io/npm/l/@git-franckg/sveltekit-forms.svg?style=flat-square" alt="license" />
+    </a>
     <img src="https://img.shields.io/badge/Svelte-5-FF3E00?style=flat-square&logo=svelte&logoColor=white" alt="Svelte 5" />
     <img src="https://img.shields.io/badge/TypeScript-Ready-3178C6?style=flat-square&logo=typescript&logoColor=white" alt="TypeScript" />
     <img src="https://img.shields.io/badge/Schema-Standard-4ECDC4?style=flat-square" alt="Standard Schema" />
@@ -57,7 +66,7 @@ export const load = () => {
       console.log('Form submitted:', output);
     }
   );
-  
+
   return { form };
 };
 ```
@@ -109,14 +118,14 @@ graph TB
     Schema --> Validate
     Validate --> Issues
     Issues -->|"tick()"| Behavior
-    
+
     Behavior --> Attachments
     Attachments -->|"@attach"| DOM
-    
+
     UserInput --> Events
     Events -->|"Update"| Form
     Events -->|"Toggle visibility"| Behavior
-    
+
     Form -->|"submit()"| Schema
     Schema -->|"Valid"| Success["onSubmit callback"]
     Schema -->|"Invalid"| ShowErrors["Show all errors"]
@@ -142,22 +151,22 @@ sequenceDiagram
     Input->>Form: Updates input value
     Input->>Behavior: Triggers oninput
     Behavior->>UI: Hides error (issueShown = false)
-    
+
     Form->>Schema: Validates continuously ($derived)
     Schema->>Form: Returns validation result
     Form->>Behavior: Updates issueText via tick()
-    
+
     User->>Input: Leaves field (blur)
     Input->>Behavior: Triggers onblur
     Behavior->>UI: Shows error if touched
-    
+
     User->>Input: Changes value
     Input->>Behavior: Triggers onchange
     Behavior->>UI: Shows error (issueShown = true)
-    
+
     User->>Form: Clicks submit
     Form->>Form: Checks for issues
-    
+
     alt Has validation errors
         Form->>Behavior: Mark all fields as touched & shown
         Behavior->>UI: Display all errors
@@ -172,18 +181,14 @@ sequenceDiagram
 
 ```typescript
 class Form<T extends FormInput> {
-  input: T;                              // Reactive form data
-  behaviors: Record<keyof T, Behavior>;  // Field behaviors
-  issues: FlattenedIssues<T> | null;    // Current validation errors
-  
-  constructor(
-    config: FormConfig<T>,
-    initialValue: T,
-    onSubmit: (output: T) => void
-  );
-  
-  submit(): void;                        // Validate and submit form
-  tick(): void;                          // Update field errors
+  input: T; // Reactive form data
+  behaviors: Record<keyof T, Behavior>; // Field behaviors
+  issues: FlattenedIssues<T> | null; // Current validation errors
+
+  constructor(config: FormConfig<T>, initialValue: T, onSubmit: (output: T) => void);
+
+  submit(): void; // Validate and submit form
+  tick(): void; // Update field errors
   fixed<TFixed>(fixedInput: TFixed): Form<Extract<T, TFixed>>;
 }
 ```
@@ -212,7 +217,7 @@ Use the `{@attach}` directive to connect behaviors to DOM elements:
 ### Working with Union Types
 
 ```typescript
-type FormInput = 
+type FormInput =
   | { type: 'login'; email: string; password: string }
   | { type: 'register'; email: string; password: string; confirmPassword: string };
 
@@ -225,10 +230,7 @@ const form = data.form.fixed({ type: 'register' });
 
 ```typescript
 const schema = object({
-  email: pipe(
-    string('Email is required'),
-    email('Please enter a valid email')
-  )
+  email: pipe(string('Email is required'), email('Please enter a valid email'))
 });
 ```
 
@@ -246,6 +248,7 @@ form.behaviors.email.issueShown = true;
 ## Browser Support
 
 Requires browsers with support for:
+
 - Svelte 5 (Chrome/Edge 84+, Firefox 75+, Safari 14.1+)
 - ES2020 features
 
