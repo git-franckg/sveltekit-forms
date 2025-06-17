@@ -1,6 +1,6 @@
 <script lang="ts">
   import { page } from '$app/state';
-  import type { LayoutProps } from './$types.js';
+  import type { LayoutProps, Snapshot } from './$types.js';
 
   const { data, children }: LayoutProps = $props();
 
@@ -14,6 +14,15 @@
       '/just-participant/success': 'success'
     }[page.url.pathname]
   );
+
+  export const snapshot: Snapshot = {
+    capture() {
+      return data.participant.input;
+    },
+    restore(snapshot) {
+      data.participant.input = snapshot;
+    }
+  };
 </script>
 
 <div class="container">
@@ -39,8 +48,6 @@
   </div>
 
   {@render children()}
-
-  {#if currentForm === 'login'}{:else if currentForm === 'billing'}{:else if currentForm === 'creditCard'}{:else if currentForm === 'otp'}{:else if currentForm === 'success'}{/if}
 </div>
 
 <style>
@@ -103,51 +110,5 @@
     background: #28a745;
     border-color: #28a745;
     color: white;
-  }
-
-  .success {
-    text-align: center;
-    padding: 2rem;
-    background: #f8f9fa;
-    border-radius: 8px;
-  }
-
-  .success h2 {
-    color: #28a745;
-    margin-bottom: 1rem;
-  }
-
-  .success button {
-    margin-top: 1rem;
-    padding: 0.5rem 1rem;
-    background: #007bff;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-  }
-
-  .success button:hover {
-    background: #0056b3;
-  }
-
-  details {
-    margin-top: 1rem;
-    text-align: left;
-  }
-
-  summary {
-    cursor: pointer;
-    color: #007bff;
-  }
-
-  pre {
-    margin-top: 0.5rem;
-    padding: 1rem;
-    background: white;
-    border: 1px solid #dee2e6;
-    border-radius: 4px;
-    overflow-x: auto;
-    font-size: 0.875rem;
   }
 </style>
