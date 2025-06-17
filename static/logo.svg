@@ -1,0 +1,87 @@
+<svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background circle with gradient -->
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#FF6B6B;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#4ECDC4;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#45B7D1;stop-opacity:1" />
+    </linearGradient>
+    
+    <!-- Glow effect -->
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    
+    <!-- Inner shadow for depth -->
+    <filter id="innerShadow">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="3"/>
+      <feOffset dx="0" dy="2"/>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.3"/>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <!-- Main circle background -->
+  <circle cx="100" cy="100" r="90" fill="url(#bgGradient)" opacity="0.1"/>
+  <circle cx="100" cy="100" r="90" fill="none" stroke="url(#bgGradient)" stroke-width="2" opacity="0.5"/>
+  
+  <!-- Form icon made with geometric shapes -->
+  <!-- Document/Form shape -->
+  <g transform="translate(50, 40)">
+    <!-- Paper with fold -->
+    <path d="M 20 20 L 80 20 L 80 25 L 85 30 L 85 120 L 20 120 Z" 
+          fill="#ffffff" 
+          stroke="#333333" 
+          stroke-width="2" 
+          stroke-linejoin="round"
+          filter="url(#innerShadow)"/>
+    
+    <!-- Paper fold corner -->
+    <path d="M 80 20 L 80 30 L 85 30" 
+          fill="none" 
+          stroke="#333333" 
+          stroke-width="2" 
+          stroke-linejoin="round"/>
+    
+    <!-- Form lines (animated look) -->
+    <line x1="30" y1="40" x2="55" y2="40" stroke="#4ECDC4" stroke-width="3" stroke-linecap="round"/>
+    <line x1="30" y1="55" x2="65" y2="55" stroke="#45B7D1" stroke-width="3" stroke-linecap="round"/>
+    <line x1="30" y1="70" x2="60" y2="70" stroke="#4ECDC4" stroke-width="3" stroke-linecap="round"/>
+    
+    <!-- Checkmark (validation) -->
+    <g transform="translate(35, 85)">
+      <circle cx="0" cy="0" r="12" fill="#4ECDC4" filter="url(#glow)"/>
+      <path d="M -6 0 L -2 4 L 6 -4" 
+            fill="none" 
+            stroke="#ffffff" 
+            stroke-width="3" 
+            stroke-linecap="round" 
+            stroke-linejoin="round"/>
+    </g>
+  </g>
+  
+  <!-- Decorative elements -->
+  <!-- Floating particles for modern feel -->
+  <circle cx="35" cy="35" r="4" fill="#FF6B6B" opacity="0.6" filter="url(#glow)"/>
+  <circle cx="165" cy="45" r="3" fill="#4ECDC4" opacity="0.6" filter="url(#glow)"/>
+  <circle cx="170" cy="160" r="5" fill="#45B7D1" opacity="0.6" filter="url(#glow)"/>
+  <circle cx="30" cy="165" r="3.5" fill="#FF6B6B" opacity="0.6" filter="url(#glow)"/>
+  
+  <!-- Small decorative squares -->
+  <rect x="150" y="80" width="8" height="8" fill="#4ECDC4" opacity="0.4" transform="rotate(45 154 84)"/>
+  <rect x="40" y="140" width="6" height="6" fill="#45B7D1" opacity="0.4" transform="rotate(45 43 143)"/>
+  
+  <!-- Brand text -->
+  <text x="100" y="175" font-family="Arial, sans-serif" font-size="14" font-weight="bold" text-anchor="middle" fill="#333333">
+    sveltekit-forms
+  </text>
+</svg>
