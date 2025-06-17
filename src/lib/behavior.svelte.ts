@@ -31,7 +31,8 @@ export class Behavior {
   issueShown = $state(false);
   touched = $state(false);
 
-  constructor({}: BehaviorOptions) {}
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  constructor(_options: BehaviorOptions) {}
 
   input: Attachment<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement> = (el) => {
     el.setAttribute('id', this.ids.input);

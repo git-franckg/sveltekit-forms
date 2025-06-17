@@ -1,1 +1,1 @@
-export { Form } from './form.svelte.js';
+export { type FormInput, type FormConfig, Form } from './form.svelte.js';

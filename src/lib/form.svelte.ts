@@ -7,6 +7,7 @@ import { flattenIssues, type FlattenedIssues } from './@standard-schema/utils/fl
 /**
  * Tout les champs d'un formulaire.
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type FormInput = Record<string, any>;
 
 export type FormConfig<T extends FormInput> = {
