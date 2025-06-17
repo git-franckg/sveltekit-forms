@@ -18,7 +18,7 @@ export const load: PageLoad = () => {
       email: '',
       password: ''
     },
-    (output) => {
+    async (output) => {
       // Normally sveltekit's goto would be used.
       console.log('Form is valid', output);
     }

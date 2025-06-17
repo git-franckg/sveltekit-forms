@@ -1,4 +1,43 @@
 /**
+ * Error type returned when duplicate values are found in an array.
+ * Using a string literal type ensures it cannot be confused with a valid array.
+ */
+type DuplicateError<T> = `Error: Duplicate value '${T & string}'`;
+
+/**
+ * Utility type that recursively checks if an array contains only unique values.
+ *
+ * @template T - The array to check for uniqueness
+ * @template A - Accumulator array tracking already seen values (internal use)
+ *
+ * @returns The original array type if all values are unique,
+ *          or DuplicateError<value> if duplicates found
+ *
+ * @example
+ * type Valid = UniqueArray<['a', 'b', 'c']>; // ['a', 'b', 'c']
+ * type Invalid = UniqueArray<['a', 'b', 'a']>; // "Error: Duplicate value 'a'"
+ */
+type UniqueArray<T, A extends ReadonlyArray<any> = []> = T extends readonly [infer Head, ...infer Tail]
+  ? Head extends A[number]
+    ? DuplicateError<Head>
+    : UniqueArray<Tail, [...A, Head]>
+  : T;
+
+/**
+ * Helper type that ensures an array contains only unique values.
+ * Provides compile-time validation with clear error messages.
+ *
+ * @template T - The array type to validate
+ *
+ * @returns The array type if valid, or never if duplicates exist
+ *
+ * @example
+ * type Flow = EnsureUniqueArray<['step1', 'step2']>; // ['step1', 'step2']
+ * type BadFlow = EnsureUniqueArray<['step1', 'step1']>; // never (with type error showing the duplicate)
+ */
+export type EnsureUniqueArray<T extends ReadonlyArray<any>> = UniqueArray<T> extends ReadonlyArray<any> ? UniqueArray<T> : never;
+
+/**
  * `keyof` mais qui fonctionne sur les union.
  *
  * # Example

@@ -95,3 +95,36 @@ This is a reactive form management library for SvelteKit that provides type-safe
 - Demo/documentation in `src/routes/+page.svelte`
 - Run `yarn check` before building to catch TypeScript errors
 - Use `yarn lint` to ensure code quality
+
+## Important Implementation Notes
+
+### Form Reactivity
+
+**CRITICAL**: When using the Form class in components, you MUST add `$effect(() => form.tick())` to ensure proper reactivity. This effect triggers validation and updates the form state when inputs change.
+
+```svelte
+<script lang="ts">
+  const form = new Form(schema, { input: defaultValues });
+  
+  // This is REQUIRED for form reactivity
+  $effect(() => form.tick());
+</script>
+```
+
+### Attachment Usage
+
+When using Behavior attachments (for input, label, error, caption), use Svelte 5's `{@attach` directive:
+
+```svelte
+<label {@attach form.behaviors.fieldName.label}>Field Label</label>
+<input {@attach form.behaviors.fieldName.input} bind:value={form.input.fieldName} />
+<span {@attach form.behaviors.fieldName.error}></span>
+<span {@attach form.behaviors.fieldName.caption}>Helper text</span>
+```
+
+**NOTE**: Do NOT use the deprecated `use:` directive. Always use `{@attach` for Svelte 5 attachments.
+
+The attachments handle:
+- ARIA attributes automatically
+- Error visibility timing
+- Proper accessibility relationships

@@ -28,10 +28,12 @@ export class Form<T extends FormInput> {
   /** Erreurs des champs */
   readonly issues: FlattenedIssues<T> | null;
 
+  submitting = $state(false);
+
   constructor(
     config: FormConfig<T>,
     initialValue: T,
-    private readonly onSubmit: (output: T) => void
+    private readonly onSubmit: (output: T) => Promise<void>
   ) {
     this.input = $state(initialValue);
 
@@ -97,6 +99,10 @@ export class Form<T extends FormInput> {
       return;
     }
 
-    this.onSubmit($state.snapshot(this.input) as T);
+    this.submitting = true;
+
+    this.onSubmit($state.snapshot(this.input) as T).finally(() => {
+      this.submitting = false;
+    });
   };
 }
