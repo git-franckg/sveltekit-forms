@@ -47,7 +47,8 @@ export const load: LayoutLoad = () => {
       }
     },
     flow: ['login', 'billing', 'creditCard', 'otp'],
-    endRoute: '/just-participant/success',
+    abortRoute: '/just-participant',
+    completeRoute: '/just-participant/success',
     async navigate(route) {
       await goto(route);
     }

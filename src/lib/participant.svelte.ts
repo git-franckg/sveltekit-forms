@@ -17,8 +17,10 @@ export type ParticipantConfig<T extends ParticipantInput> = {
       route: string;
     };
   };
-  /** Href lorsque le dernier formulaire a été rempli. */
-  endRoute: string;
+  /** Href avant le premier formulaire */
+  abortRoute: string;
+  /** Href après le dernier formulaire */
+  completeRoute: string;
   /** Array qui contient les noms des formulaires, où celui au tout début sera le premier formulaire. */
   flow: EnsureUniqueArray<(keyof T)[]>;
   /** Adapteur vers sveltekit's `goto` par exemple. */
@@ -34,18 +36,37 @@ export class Participant<T extends ParticipantInput> {
     return async (output) => {
       this.input[form] = output;
 
-      const curr = this.config.flow.indexOf(form);
-      if (curr == -1) throw new Error();
-
-      if (curr == this.config.flow.length - 1) {
-        console.log('Redirecting to last route');
-        await this.config.navigate(this.config.endRoute);
-      } else {
-        const next = this.config.flow[curr + 1];
-        console.log('Redirecting to next route', next);
-        await this.config.navigate(this.config.forms[next].route);
-      }
+      const href = this.getNextHref(form);
+      await this.config.navigate(href);
     };
+  }
+
+  getNextHref(form: keyof T): string {
+    const curr = this.config.flow.indexOf(form);
+    if (curr == -1) throw new Error();
+
+    const isLast = curr == this.config.flow.length - 1;
+
+    if (isLast) {
+      return this.config.completeRoute;
+    } else {
+      const nextForm = this.config.flow[curr + 1];
+      return this.config.forms[nextForm].route;
+    }
+  }
+
+  getBackHref(form: keyof T): string {
+    const curr = this.config.flow.indexOf(form);
+    if (curr == -1) throw new Error();
+
+    const isFirst = curr == 0;
+
+    if (isFirst) {
+      return this.config.abortRoute;
+    } else {
+      const nextForm = this.config.flow[curr - 1];
+      return this.config.forms[nextForm].route;
+    }
   }
 
   set<K extends keyof T>(form: K, defaultValue: T[K]): Form<T[K]> {
