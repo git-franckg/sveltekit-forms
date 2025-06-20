@@ -28,9 +28,14 @@ export type ParticipantConfig<T extends ParticipantInput> = {
 };
 
 export class Participant<T extends ParticipantInput> {
-  readonly input: Partial<T> = $state({});
+  readonly input: Partial<T>;
 
-  constructor(private readonly config: ParticipantConfig<T>) {}
+  constructor(
+    private readonly config: ParticipantConfig<T>,
+    initialInput: Partial<T> = {}
+  ) {
+    this.input = $state(initialInput);
+  }
 
   private makeOnSubmit<K extends keyof T>(form: K): (output: T[K]) => Promise<void> {
     return async (output) => {
