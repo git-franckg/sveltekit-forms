@@ -31,6 +31,7 @@
 - ♿ **Accessible by default** - Automatic ARIA attributes management
 - 🎨 **Flexible error display** - Smart error visibility timing
 - 🔧 **Union type support** - Handle discriminated unions with the `fixed()` method
+- 🚀 **Multi-step forms** - Built-in support for complex form flows with the `Participant` class
 
 ## Installation
 
@@ -134,6 +135,54 @@ graph TB
     style Behavior fill:#f3e5f5
     style Schema fill:#e8f5e9
     style DOM fill:#fff3e0
+```
+
+## Multi-Step Form Flow with Participant
+
+```mermaid
+graph LR
+    subgraph "Layout Load"
+        P[Participant Instance<br/>• Config with forms<br/>• Flow order<br/>• Navigation adapter]
+    end
+
+    subgraph "Form Steps"
+        F1[Form 1: Account<br/>email, password]
+        F2[Form 2: Profile<br/>name, bio]
+        F3[Form 3: Preferences<br/>settings]
+    end
+
+    subgraph "Participant State"
+        Input[participant.input<br/>{ account: {...},<br/>profile: {...},<br/>preferences: {...} }]
+    end
+
+    subgraph "Navigation"
+        Route1[/signup/account]
+        Route2[/signup/profile]
+        Route3[/signup/preferences]
+        EndRoute[/signup/complete]
+    end
+
+    P -->|"set('account')"| F1
+    P -->|"set('profile')"| F2
+    P -->|"set('preferences')"| F3
+
+    F1 -->|submit()| Input
+    F2 -->|submit()| Input
+    F3 -->|submit()| Input
+
+    Route1 -->|Form 1 Success| Route2
+    Route2 -->|Form 2 Success| Route3
+    Route3 -->|Form 3 Success| EndRoute
+
+    F1 -.->|Creates| Form[Form Instance<br/>with validation]
+    F2 -.->|Creates| Form
+    F3 -.->|Creates| Form
+
+    Input -->|Persists across<br/>navigation| Input
+
+    style P fill:#e1f5fe
+    style Input fill:#f3e5f5
+    style EndRoute fill:#c8e6c9
 ```
 
 ## User Interaction Flow
@@ -244,6 +293,137 @@ form.input.email = 'new@email.com';
 form.behaviors.email.touched = true;
 form.behaviors.email.issueShown = true;
 ```
+
+## Multi-Step Forms with Participant
+
+The `Participant` class enables you to build complex multi-step form workflows, such as checkout processes, registration wizards, or surveys. It manages form state across navigation and automatically progresses through your defined flow.
+
+### Setting Up a Multi-Step Form
+
+```typescript
+// +layout.ts
+import { Participant } from '@git-franckg/sveltekit-forms';
+import { goto } from '$app/navigation';
+import { object, string, pipe, email, minLength } from 'valibot';
+
+export const load = () => {
+  const participant = new Participant({
+    forms: {
+      account: {
+        schema: object({
+          email: pipe(string(), email()),
+          password: pipe(string(), minLength(8))
+        }),
+        behavior: { email: {}, password: {} },
+        route: '/signup/account'
+      },
+      profile: {
+        schema: object({
+          firstName: string(),
+          lastName: string(),
+          bio: string()
+        }),
+        behavior: { firstName: {}, lastName: {}, bio: {} },
+        route: '/signup/profile'
+      },
+      preferences: {
+        schema: object({
+          newsletter: boolean(),
+          notifications: boolean()
+        }),
+        behavior: { newsletter: {}, notifications: {} },
+        route: '/signup/preferences'
+      }
+    },
+    flow: ['account', 'profile', 'preferences'],
+    endRoute: '/signup/complete',
+    navigate: goto
+  });
+
+  return { participant };
+};
+```
+
+### Using Participant in Form Pages
+
+```svelte
+<!-- /signup/profile/+page.svelte -->
+<script lang="ts">
+  const { data } = $props();
+
+  // Create a form for this step with default values
+  const form = data.participant.set('profile', {
+    firstName: '',
+    lastName: '',
+    bio: ''
+  });
+
+  $effect(() => form.tick());
+</script>
+
+<form>
+  <h1>Step 2: Your Profile</h1>
+
+  <label {@attach form.behaviors.firstName.label}>First Name</label>
+  <input {@attach form.behaviors.firstName.input} bind:value={form.input.firstName} />
+  <p {@attach form.behaviors.firstName.error}>{form.behaviors.firstName.issueText?.[0]}</p>
+
+  <label {@attach form.behaviors.lastName.label}>Last Name</label>
+  <input {@attach form.behaviors.lastName.input} bind:value={form.input.lastName} />
+  <p {@attach form.behaviors.lastName.error}>{form.behaviors.lastName.issueText?.[0]}</p>
+
+  <label {@attach form.behaviors.bio.label}>Bio</label>
+  <textarea {@attach form.behaviors.bio.input} bind:value={form.input.bio}></textarea>
+  <p {@attach form.behaviors.bio.error}>{form.behaviors.bio.issueText?.[0]}</p>
+
+  <button type="button" onclick={form.submit}>Continue</button>
+</form>
+```
+
+### Accessing Accumulated Data
+
+```svelte
+<!-- /signup/complete/+page.svelte -->
+<script lang="ts">
+  const { data } = $props();
+  // Access all collected data
+  const allData = data.participant.input;
+</script>
+
+<h1>Registration Complete!</h1><pre>{JSON.stringify(allData, null, 2)}</pre>
+```
+
+### Participant API
+
+```typescript
+class Participant<T extends ParticipantInput> {
+  // Accumulated form data from all steps
+  readonly input: Partial<T>;
+
+  // Create a Form instance for a specific step
+  set<K extends keyof T>(form: K, defaultValue: T[K]): Form<T[K]>;
+}
+
+// Configuration interface
+type ParticipantConfig<T> = {
+  forms: {
+    [K in keyof T]: FormConfig<T[K]> & {
+      route: string; // URL for this form step
+    };
+  };
+  endRoute: string; // Destination after completing all forms
+  flow: (keyof T)[]; // Order of form progression
+  navigate: (route: string) => Promise<void>; // Navigation function
+};
+```
+
+### Key Benefits
+
+- **Persistent State**: Form data is preserved across navigation
+- **Type Safety**: Full TypeScript support for all form steps
+- **Automatic Flow**: No manual navigation logic needed
+- **Flexible**: Each form can have its own validation rules and behaviors
+- **Progressive Enhancement**: Works with browser back/forward navigation
 
 ## Browser Support
 

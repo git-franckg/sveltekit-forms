@@ -17,6 +17,7 @@ type DuplicateError<T> = `Error: Duplicate value '${T & string}'`;
  * type Valid = UniqueArray<['a', 'b', 'c']>; // ['a', 'b', 'c']
  * type Invalid = UniqueArray<['a', 'b', 'a']>; // "Error: Duplicate value 'a'"
  */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 type UniqueArray<T, A extends ReadonlyArray<any> = []> = T extends readonly [infer Head, ...infer Tail]
   ? Head extends A[number]
     ? DuplicateError<Head>
@@ -35,6 +36,7 @@ type UniqueArray<T, A extends ReadonlyArray<any> = []> = T extends readonly [inf
  * type Flow = EnsureUniqueArray<['step1', 'step2']>; // ['step1', 'step2']
  * type BadFlow = EnsureUniqueArray<['step1', 'step1']>; // never (with type error showing the duplicate)
  */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 export type EnsureUniqueArray<T extends ReadonlyArray<any>> = UniqueArray<T> extends ReadonlyArray<any> ? UniqueArray<T> : never;
 
 /**

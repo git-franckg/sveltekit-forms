@@ -48,7 +48,16 @@ This is a reactive form management library for SvelteKit that provides type-safe
    - Handles error visibility timing (show on blur, hide on input)
    - Manages ARIA attributes automatically
 
-3. **Validation Integration**
+3. **Participant Class** (`src/lib/participant.svelte.ts`)
+
+   - Manages multi-step form workflows with sequential progression
+   - Generic type `T extends ParticipantInput` for type-safe multi-form state
+   - Key method: `set()` - creates Form instances for each step
+   - Properties: `input` (accumulated data from all forms)
+   - Automatic navigation between forms based on defined flow
+   - Stores form data persistently across navigation
+
+4. **Validation Integration**
    - Uses Standard Schema V1 specification
    - Compatible with Valibot, Zod, and other Standard Schema libraries
    - Synchronous validation only (async schemas throw error)
@@ -105,7 +114,7 @@ This is a reactive form management library for SvelteKit that provides type-safe
 ```svelte
 <script lang="ts">
   const form = new Form(schema, { input: defaultValues });
-  
+
   // This is REQUIRED for form reactivity
   $effect(() => form.tick());
 </script>
@@ -125,6 +134,49 @@ When using Behavior attachments (for input, label, error, caption), use Svelte 5
 **NOTE**: Do NOT use the deprecated `use:` directive. Always use `{@attach` for Svelte 5 attachments.
 
 The attachments handle:
+
 - ARIA attributes automatically
 - Error visibility timing
 - Proper accessibility relationships
+
+### Multi-Step Form Management with Participant
+
+When building multi-step forms (e.g., checkout flows, registration wizards), use the Participant class to coordinate multiple forms:
+
+```typescript
+// In +layout.ts
+import { Participant } from '@git-franckg/sveltekit-forms';
+import { goto } from '$app/navigation';
+import { loginSchema, billingSchema, paymentSchema } from './schemas';
+
+export const load = () => {
+  const participant = new Participant({
+    forms: {
+      login: { schema: loginSchema, route: '/checkout/login' },
+      billing: { schema: billingSchema, route: '/checkout/billing' },
+      payment: { schema: paymentSchema, route: '/checkout/payment' }
+    },
+    flow: ['login', 'billing', 'payment'],
+    endRoute: '/checkout/success',
+    navigate: goto
+  });
+
+  return { participant };
+};
+```
+
+```svelte
+<!-- In each form page (e.g., /checkout/billing/+page.svelte) -->
+<script lang="ts">
+  const { data } = $props();
+  const form = data.participant.set('billing', { name: '', address: '' });
+  $effect(() => form.tick());
+</script>
+```
+
+**Key Points**:
+
+- Form data persists across navigation in `participant.input`
+- Automatic progression to next form after successful submission
+- Type-safe access to accumulated data from previous steps
+- Navigation handled automatically based on the defined flow

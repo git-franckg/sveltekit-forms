@@ -29,4 +29,3 @@ export const otpSchema = v.object({
   phoneNumber: v.pipe(v.string(), v.regex(/^\+?1?\d{10}$/, 'Please enter a valid phone number')),
   otp: v.pipe(v.string(), v.regex(/^\d{6}$/, 'OTP must be 6 digits'))
 });
-
