@@ -30,8 +30,8 @@ export class Participant<T extends ParticipantInput> {
 
   constructor(private readonly config: ParticipantConfig<T>) {}
 
-  set<K extends keyof T>(form: K, defaultValue: T[K]): Form<T[K]> {
-    return new Form(this.config.forms[form], this.input[form] ?? defaultValue, async (output) => {
+  private makeOnSubmit<K extends keyof T>(form: K): (output: T[K]) => Promise<void> {
+    return async (output) => {
       this.input[form] = output;
 
       const curr = this.config.flow.indexOf(form);
@@ -45,6 +45,14 @@ export class Participant<T extends ParticipantInput> {
         console.log('Redirecting to next route', next);
         await this.config.navigate(this.config.forms[next].route);
       }
-    });
+    };
+  }
+
+  set<K extends keyof T>(form: K, defaultValue: T[K]): Form<T[K]> {
+    return new Form(this.config.forms[form], this.input[form] ?? defaultValue, this.makeOnSubmit(form));
+  }
+
+  replace<K extends keyof T>(form: K, initialValue: T[K]): Form<T[K]> {
+    return new Form(this.config.forms[form], initialValue, this.makeOnSubmit(form));
   }
 }
