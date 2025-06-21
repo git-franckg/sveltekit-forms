@@ -1,3 +1,5 @@
+import { goto } from '$app/navigation';
+import { participant } from '$lib/participant.svelte.js';
 import * as v from 'valibot';
 
 // Login form schema
@@ -28,4 +30,48 @@ export const creditCardSchema = v.object({
 export const otpSchema = v.object({
   phoneNumber: v.pipe(v.string(), v.regex(/^\+?1?\d{10}$/, 'Please enter a valid phone number')),
   otp: v.pipe(v.string(), v.regex(/^\d{6}$/, 'OTP must be 6 digits'))
+});
+
+export const myParticipant = participant({
+  forms: {
+    login: {
+      schema: loginSchema,
+      behavior: {
+        // {} are of type BehaviorOptions
+        email: {},
+        password: {}
+      }
+    },
+    billing: {
+      schema: billingSchema,
+      behavior: {
+        firstName: {},
+        lastName: {},
+        address: {},
+        city: {},
+        state: {},
+        zipCode: {}
+      }
+    },
+    creditCard: {
+      schema: creditCardSchema,
+      behavior: {
+        cardNumber: {},
+        cardholderName: {},
+        cvv: {},
+        expiryDate: {}
+      }
+    },
+    otp: {
+      schema: otpSchema,
+      behavior: {
+        otp: {},
+        phoneNumber: {}
+      }
+    }
+  },
+  flow: ['login', 'billing', 'creditCard', 'otp'],
+  async navigate(route) {
+    await goto(route);
+  }
 });

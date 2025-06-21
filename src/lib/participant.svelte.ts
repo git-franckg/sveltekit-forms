@@ -81,3 +81,14 @@ export class Participant<T extends ParticipantInput> {
     return new Form(this.config.forms[form], initialValue, this.makeOnSubmit(form));
   }
 }
+
+export type ParticipantFactory<T extends ParticipantInput> = (
+  initialInput: Partial<T> | undefined,
+  routes: ParticipantRoutes<T>
+) => Participant<T>;
+
+export function participant<T extends ParticipantInput>(config: ParticipantConfig<T>): ParticipantFactory<T> {
+  return (initialInput, routes) => {
+    return new Participant(config, routes, initialInput);
+  };
+}
