@@ -158,10 +158,6 @@
     border-color: #007bff;
   }
 
-  input[aria-invalid='true'] {
-    border-color: #dc3545;
-  }
-
   .error {
     margin-top: 0.25rem;
     font-size: 0.875rem;
