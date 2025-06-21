@@ -19,11 +19,18 @@ export type ParticipantConfig<T extends ParticipantInput> = {
   navigate(route: string): Promise<void>;
 };
 
+export type ParticipantRoutes<T extends ParticipantInput> = {
+  forms: Record<keyof T, string>;
+  abortRoute: string;
+  successRoute: string;
+};
+
 export class Participant<T extends ParticipantInput> {
   readonly input: Partial<T>;
 
   constructor(
     private readonly config: ParticipantConfig<T>,
+    private readonly routes: ParticipantRoutes<T>,
     initialInput: Partial<T> = {}
   ) {
     this.input = $state(initialInput);
@@ -45,10 +52,10 @@ export class Participant<T extends ParticipantInput> {
     const isLast = curr == this.config.flow.length - 1;
 
     if (isLast) {
-      return this.config.completeRoute;
+      return this.routes.successRoute;
     } else {
       const nextForm = this.config.flow[curr + 1];
-      return this.config.forms[nextForm].route;
+      return this.routes.forms[nextForm];
     }
   }
 
@@ -59,10 +66,10 @@ export class Participant<T extends ParticipantInput> {
     const isFirst = curr == 0;
 
     if (isFirst) {
-      return this.config.abortRoute;
+      return this.routes.abortRoute;
     } else {
       const nextForm = this.config.flow[curr - 1];
-      return this.config.forms[nextForm].route;
+      return this.routes.forms[nextForm];
     }
   }
 

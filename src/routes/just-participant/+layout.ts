@@ -4,54 +4,60 @@ import type { LayoutLoad } from './$types.js';
 import { loginSchema, billingSchema, creditCardSchema, otpSchema } from './schemas.js';
 
 export const load: LayoutLoad = () => {
-  const participant = new Participant({
-    forms: {
-      login: {
-        schema: loginSchema,
-        behavior: {
-          // {} are of type BehaviorOptions
-          email: {},
-          password: {}
+  const participant = new Participant(
+    {
+      forms: {
+        login: {
+          schema: loginSchema,
+          behavior: {
+            // {} are of type BehaviorOptions
+            email: {},
+            password: {}
+          }
         },
-        route: '/just-participant'
+        billing: {
+          schema: billingSchema,
+          behavior: {
+            firstName: {},
+            lastName: {},
+            address: {},
+            city: {},
+            state: {},
+            zipCode: {}
+          }
+        },
+        creditCard: {
+          schema: creditCardSchema,
+          behavior: {
+            cardNumber: {},
+            cardholderName: {},
+            cvv: {},
+            expiryDate: {}
+          }
+        },
+        otp: {
+          schema: otpSchema,
+          behavior: {
+            otp: {},
+            phoneNumber: {}
+          }
+        }
       },
-      billing: {
-        schema: billingSchema,
-        behavior: {
-          firstName: {},
-          lastName: {},
-          address: {},
-          city: {},
-          state: {},
-          zipCode: {}
-        },
-        route: '/just-participant/billing'
-      },
-      creditCard: {
-        schema: creditCardSchema,
-        behavior: {
-          cardNumber: {},
-          cardholderName: {},
-          cvv: {},
-          expiryDate: {}
-        },
-        route: '/just-participant/credit-card'
-      },
-      otp: {
-        schema: otpSchema,
-        behavior: {
-          otp: {},
-          phoneNumber: {}
-        },
-        route: '/just-participant/otp'
+      flow: ['login', 'billing', 'creditCard', 'otp'],
+      async navigate(route) {
+        await goto(route);
       }
     },
-    flow: ['login', 'billing', 'creditCard', 'otp'],
-    abortRoute: '/just-participant',
-    completeRoute: '/just-participant/success',
-    async navigate(route) {
-      await goto(route);
+    {
+      forms: {
+        login: '/just-participant/login',
+        billing: '/just-participant/billing',
+        creditCard: '/just-participant/creditCard',
+        otp: '/just-participant/otp'
+      },
+      abortRoute: '/just-participant',
+      successRoute: '/just-participant/success'
     }
-  });
+  );
   return { participant };
 };
