@@ -23,6 +23,7 @@ export type ParticipantRoutes<T extends ParticipantInput> = {
   forms: Record<keyof T, string>;
   abortRoute: string;
   successRoute: string;
+  onSubmit: <K extends keyof T>(name: K, input: T[K]) => Promise<void>;
 };
 
 export class Participant<T extends ParticipantInput> {
@@ -37,8 +38,10 @@ export class Participant<T extends ParticipantInput> {
   }
 
   private makeOnSubmit<K extends keyof T>(form: K): (output: T[K]) => Promise<void> {
-    return async (output) => {
-      this.input[form] = output;
+    return async (input) => {
+      this.input[form] = input;
+
+      await this.routes.onSubmit(form, input);
 
       const href = this.getNextHref(form);
       await this.config.navigate(href);
@@ -86,6 +89,8 @@ export type ParticipantFactory<T extends ParticipantInput> = (
   initialInput: Partial<T> | undefined,
   routes: ParticipantRoutes<T>
 ) => Participant<T>;
+
+export type ParticipantFactoryInput<T extends ParticipantFactory<ParticipantInput>> = T extends ParticipantFactory<infer R> ? R : never;
 
 export function participant<T extends ParticipantInput>(config: ParticipantConfig<T>): ParticipantFactory<T> {
   return (initialInput, routes) => {

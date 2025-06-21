@@ -7,6 +7,7 @@ export {
   participant,
   Participant,
   type ParticipantFactory,
+  type ParticipantFactoryInput,
   type ParticipantRoutes,
   type ParticipantConfig,
   type ParticipantInput

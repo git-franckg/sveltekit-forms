@@ -1,28 +1,19 @@
 <script lang="ts">
   import { page } from '$app/state';
-  import type { LayoutProps, Snapshot } from './$types.js';
+  import type { LayoutProps } from './$types.js';
 
   const { data, children }: LayoutProps = $props();
 
   // Determine which form to show based on the current route
   let currentForm = $derived(
     {
-      '/just-participant': 'login',
+      '/just-participant/login': 'login',
       '/just-participant/billing': 'billing',
       '/just-participant/credit-card': 'creditCard',
       '/just-participant/otp': 'otp',
       '/just-participant/success': 'success'
     }[page.url.pathname]
   );
-
-  export const snapshot: Snapshot = {
-    capture() {
-      return data.participant.input;
-    },
-    restore(snapshot) {
-      data.participant.input = snapshot;
-    }
-  };
 </script>
 
 <div class="container">
