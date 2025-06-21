@@ -1,5 +1,4 @@
 import { type FormInput, type FormConfig, Form } from './form.svelte.js';
-import type { EnsureUniqueArray } from './utils.js';
 
 /**
  * Les champs des formulaires d'un participant.
@@ -12,17 +11,10 @@ export type ParticipantInput = Record<string, FormInput>;
 export type ParticipantConfig<T extends ParticipantInput> = {
   /** Formulaires auquel le participant devra répondre. */
   forms: {
-    [K in keyof T]: FormConfig<T[K]> & {
-      /** Href vers le formulaire */
-      route: string;
-    };
+    [K in keyof T]: FormConfig<T[K]>;
   };
-  /** Href avant le premier formulaire */
-  abortRoute: string;
-  /** Href après le dernier formulaire */
-  completeRoute: string;
   /** Array qui contient les noms des formulaires, où celui au tout début sera le premier formulaire. */
-  flow: EnsureUniqueArray<(keyof T)[]>;
+  flow: (keyof T)[];
   /** Adapteur vers sveltekit's `goto` par exemple. */
   navigate(route: string): Promise<void>;
 };
@@ -60,7 +52,7 @@ export class Participant<T extends ParticipantInput> {
     }
   }
 
-  getBackHref(form: keyof T): string {
+  getBackHref(form: keyof T): string | undefined {
     const curr = this.config.flow.indexOf(form);
     if (curr == -1) throw new Error();
 
