@@ -62,7 +62,7 @@ export class Participant<T extends ParticipantInput> {
     }
   }
 
-  getBackHref(form: keyof T): string | undefined {
+  getBackHref(form: keyof T): string {
     const curr = this.config.flow.indexOf(form);
     if (curr == -1) throw new Error();
 
